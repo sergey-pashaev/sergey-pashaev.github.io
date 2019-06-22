@@ -3,8 +3,8 @@
 <head>
   
   <meta charset="utf-8">
-  <title>Categories</title>
-  <meta name="description" content="Categories">
+  <title>Conan перемещает ваши бинарники без спроса</title>
+  <meta name="description" content="Conan перемещает ваши бинарники без спроса">
   <meta name="author" content="Sergey Pashaev">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -356,8 +356,6 @@ code, kbd, pre, samp {
 
   
   
-  <link href="http://sergey-pashaev.github.io/categories/index.xml" rel="alternate" type="application/rss+xml" title="My notes Feed" />
-  
 
   <meta name="generator" content="Hugo 0.40.1" />
 
@@ -406,23 +404,149 @@ code, kbd, pre, samp {
     <div class="pure-u-1-24 pure-u-md-5-24"></div>
 </div>
 
+
 <div class="pure-g">
   <div class="pure-u-1-24 pure-u-md-5-24"></div>
   <div class="pure-u-11-12 pure-u-md-7-12">
-    <p class="posts-name">Categories:</p>
-    <div class="post-content">
-      <ul class="posts">
+    <div class="post">
+
+      <div class="post-title">
+        <p class="footnote">
+          <time datetime="2019-06-22 19:28:14 &#43;0400 &#43;04">
+            
+              2019-06-22
+            
+          </time>
         
         
-        <li>
-          <a href="dev">dev</a>
-          <span>&#40;1&#41;</span>
-        </li>
+        |
         
-      </ul>
+        
+        tags: [ <a href="http://sergey-pashaev.github.io/tags/cmake">cmake</a> <a href="http://sergey-pashaev.github.io/tags/conan">conan</a> <a href="http://sergey-pashaev.github.io/tags/c&#43;&#43;">c&#43;&#43;</a> ]
+        
+
+        
+        categories: [ <a href="http://sergey-pashaev.github.io/categories/dev">dev</a> ]
+        
+
+        
+        </p>
+        <h1>Conan перемещает ваши бинарники без спроса</h1>
+      </div>
+
+      <div class="post-content">
+        
+        <p>Не так давно я решил попробовать связку conan + CMake для сборки
+проектов на C/C++ и столкнулся с неприятной проблемой. Раньше, имея
+примерно вот такую структуру проекта:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree project
+project/
+├── CMakeLists.txt
+├── bar
+│   ├── CMakeLists.txt
+│   └── src
+│       ├── bar.cpp
+│       └── CMakeLists.txt
+└── foo
+    ├── CMakeLists.txt
+    └── src
+        ├── CMakeLists.txt
+        └── foo.cpp</code></pre></div>
+<p>после построения проекта традиционным способом:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#007020">cd</span> project/
+$ mkdir -p build/ <span style="color:#666">&amp;&amp;</span> <span style="color:#007020">cd</span> build/
+$ cmake .. <span style="color:#666">&amp;&amp;</span> cmake --build .</code></pre></div>
+<p>мы получаем копию структуры проекта в <code>build/</code>:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree --ignore-case -I cmake* project/build/
+project/build/
+├── bar
+│   ├── Makefile
+│   └── src
+│       ├── bar
+│       └── Makefile
+├── foo
+│   ├── Makefile
+│   └── src
+│       ├── foo
+│       └── Makefile
+└── Makefile</code></pre></div>
+<p>И к такой структуре я очень привык и кажется она мне достаточно удобной.</p>
+
+<p>Теперь добавим в корень проекта <code>conanfile.txt</code> с описанием всех
+зависимостей и минимально необходимые команды в корневой
+<code>CMakeLists.txt</code>:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> cmake_minimum_required(VERSION 3.1)
+ project(project)
+<span style="color:#00a000">+
+</span><span style="color:#00a000">+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+</span><span style="color:#00a000">+conan_basic_setup()
+</span><span style="color:#00a000">+
+</span><span style="color:#00a000"></span> add_subdirectory(foo)
+ add_subdirectory(bar)
+</code></pre></div>
+<p>И построим проект:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#007020">cd</span> project/
+$ mkdir -p build/ <span style="color:#666">&amp;&amp;</span> <span style="color:#007020">cd</span> build/
+$ conan install --build<span style="color:#666">=</span>missing ..
+$ cmake .. <span style="color:#666">&amp;&amp;</span> cmake --build .</code></pre></div>
+<p>И видим, что все наши бинарники оказались в <code>project/build/bin</code>:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree --ignore-case -I cmake* project/build/
+project/build/
+├── bar
+│   ├── Makefile
+│   └── src
+│       └── Makefile
+├── bin
+│   ├── bar
+│   └── foo
+├── conanbuildinfo.cmake
+├── conanbuildinfo.txt
+├── conaninfo.txt
+├── foo
+│   ├── Makefile
+│   └── src
+│       └── Makefile
+├── graph_info.json
+└── Makefile</code></pre></div>
+<p>Но мы ведь совсем не просили conan делать этого. Немного погуглив, я
+нашёл <a href="https://github.com/conan-io/conan/issues/1448">причину</a>. И
+чтобы вернуть всё как прежде нужно добавить параметр <code>NO_OUTPUT_DIRS</code>
+к комманде <code>conan_basic_setup</code> в корневом <code>CMakeLists.txt</code>:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"> project(project)
+
+ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+<span style="color:#a00000">-conan_basic_setup()
+</span><span style="color:#a00000"></span><span style="color:#00a000">+conan_basic_setup(NO_OUTPUT_DIRS)
+</span><span style="color:#00a000"></span>
+ add_subdirectory(foo)
+ add_subdirectory(bar)
+</code></pre></div>
+<p>И бинарники останутся там же где и были до добавления conan:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tree --ignore-case -I cmake* project/build/
+project/build/
+├── bar
+│   ├── Makefile
+│   └── src
+│       ├── bar
+│       └── Makefile
+├── conanbuildinfo.cmake
+├── conanbuildinfo.txt
+├── conaninfo.txt
+├── foo
+│   ├── Makefile
+│   └── src
+│       ├── foo
+│       └── Makefile
+├── graph_info.json
+└── Makefile</code></pre></div>
+<p>Скачать архив проекта-примера можно <a href="/cmake-conan-project-example.tar.gz">здесь</a>.</p>
+
+      </div>
     </div>
   </div>
   <div class="pure-u-1-24 pure-u-md-5-24"></div>
+</div>
+
 <div class="footer pure-g">
   <div class="pure-u-1-24 pure-u-md-5-24"></div>
   <div class="pure-u-11-12 pure-u-md-7-12">
@@ -451,8 +575,6 @@ code, kbd, pre, samp {
 
         </ul>
         <a href="#" class="pure-menu-link pull-right" id="gototop-btn">↑↑</a>
-        
-        <a href="http://sergey-pashaev.github.io/categories/index.xml" class="pure-menu-link pull-right">RSS</a>
         
       </div>
       

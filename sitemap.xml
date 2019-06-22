@@ -3,17 +3,54 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://sergey-pashaev.github.io/posts/cmake-conan-no-output-dirs/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sergey-pashaev.github.io/tags/c&#43;&#43;/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://sergey-pashaev.github.io/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
+    <loc>http://sergey-pashaev.github.io/tags/cmake/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://sergey-pashaev.github.io/tags/conan/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://sergey-pashaev.github.io/categories/dev/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://sergey-pashaev.github.io/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://sergey-pashaev.github.io/posts/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>http://sergey-pashaev.github.io/tags/</loc>
+    <lastmod>2019-06-22T19:28:14+04:00</lastmod>
     <priority>0</priority>
   </url>
   

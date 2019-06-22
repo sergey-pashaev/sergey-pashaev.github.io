@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>My notes</title>
-    <link>http://sergey-pashaev.github.io/</link>
-    <description>Recent content on My notes</description>
+    <title>Conan on My notes</title>
+    <link>http://sergey-pashaev.github.io/tags/conan/</link>
+    <description>Recent content in Conan on My notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <managingEditor>sergey.pashaev@gmail.com (Sergey Pashaev)</managingEditor>
     <webMaster>sergey.pashaev@gmail.com (Sergey Pashaev)</webMaster>
     <lastBuildDate>Sat, 22 Jun 2019 19:28:14 +0400</lastBuildDate>
     
-	<atom:link href="http://sergey-pashaev.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://sergey-pashaev.github.io/tags/conan/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>

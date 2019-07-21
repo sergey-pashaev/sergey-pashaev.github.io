@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>sergey.pashaev@gmail.com (Sergey Pashaev)</managingEditor>
     <webMaster>sergey.pashaev@gmail.com (Sergey Pashaev)</webMaster>
-    <lastBuildDate>Sat, 22 Jun 2019 19:28:14 +0400</lastBuildDate>
+    <lastBuildDate>Sun, 21 Jul 2019 20:28:58 +0400</lastBuildDate>
     
 	<atom:link href="http://sergey-pashaev.github.io/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>cgdiff - diff для профилей callgrind</title>
+      <link>http://sergey-pashaev.github.io/posts/cgdiff/</link>
+      <pubDate>Sun, 21 Jul 2019 20:28:58 +0400</pubDate>
+      <author>sergey.pashaev@gmail.com (Sergey Pashaev)</author>
+      <guid>http://sergey-pashaev.github.io/posts/cgdiff/</guid>
+      <description>Как-то пару лет назад у меня было много задач по работе связанных с перформансом, и я много времени проводил работая с valgrind и с визуализатором для него - KCachegrind. KCachegrind замечательно всё визуализировал, но мне очень не хватало возможности показать разницу между двумя профилями callgrind&amp;lsquo;а. Первое время я справлялся тем образом, что просто открывал два профиля в двух разных окнах и глазами строчка за строчкой отслеживал где значения разнятся, но мне очень быстро это надоело.</description>
+    </item>
     
     <item>
       <title>Conan перемещает ваши бинарники без спроса</title>

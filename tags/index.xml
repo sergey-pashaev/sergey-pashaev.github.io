@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>sergey.pashaev@gmail.com (Sergey Pashaev)</managingEditor>
     <webMaster>sergey.pashaev@gmail.com (Sergey Pashaev)</webMaster>
-    <lastBuildDate>Sat, 22 Jun 2019 19:28:14 +0400</lastBuildDate>
+    <lastBuildDate>Sun, 21 Jul 2019 20:28:58 +0400</lastBuildDate>
     
 	<atom:link href="http://sergey-pashaev.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -16,9 +16,18 @@
     <item>
       <title>C&#43;&#43;</title>
       <link>http://sergey-pashaev.github.io/tags/c&#43;&#43;/</link>
-      <pubDate>Sat, 22 Jun 2019 19:28:14 +0400</pubDate>
+      <pubDate>Sun, 21 Jul 2019 20:28:58 +0400</pubDate>
       <author>sergey.pashaev@gmail.com (Sergey Pashaev)</author>
       <guid>http://sergey-pashaev.github.io/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Callgrind</title>
+      <link>http://sergey-pashaev.github.io/tags/callgrind/</link>
+      <pubDate>Sun, 21 Jul 2019 20:28:58 +0400</pubDate>
+      <author>sergey.pashaev@gmail.com (Sergey Pashaev)</author>
+      <guid>http://sergey-pashaev.github.io/tags/callgrind/</guid>
       <description></description>
     </item>
     
@@ -37,6 +46,24 @@
       <pubDate>Sat, 22 Jun 2019 19:28:14 +0400</pubDate>
       <author>sergey.pashaev@gmail.com (Sergey Pashaev)</author>
       <guid>http://sergey-pashaev.github.io/tags/conan/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Diff</title>
+      <link>http://sergey-pashaev.github.io/tags/diff/</link>
+      <pubDate>Sun, 21 Jul 2019 20:28:58 +0400</pubDate>
+      <author>sergey.pashaev@gmail.com (Sergey Pashaev)</author>
+      <guid>http://sergey-pashaev.github.io/tags/diff/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Valgrind</title>
+      <link>http://sergey-pashaev.github.io/tags/valgrind/</link>
+      <pubDate>Sun, 21 Jul 2019 20:28:58 +0400</pubDate>
+      <author>sergey.pashaev@gmail.com (Sergey Pashaev)</author>
+      <guid>http://sergey-pashaev.github.io/tags/valgrind/</guid>
       <description></description>
     </item>
     

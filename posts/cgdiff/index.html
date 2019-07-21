@@ -3,8 +3,8 @@
 <head>
   
   <meta charset="utf-8">
-  <title>Cmake</title>
-  <meta name="description" content="Cmake">
+  <title>cgdiff - diff для профилей callgrind</title>
+  <meta name="description" content="cgdiff - diff для профилей callgrind">
   <meta name="author" content="Sergey Pashaev">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -356,8 +356,6 @@ code, kbd, pre, samp {
 
   
   
-  <link href="http://sergey-pashaev.github.io/tags/cmake/index.xml" rel="alternate" type="application/rss+xml" title="My notes Feed" />
-  
 
   <meta name="generator" content="Hugo 0.52" />
 
@@ -407,32 +405,77 @@ code, kbd, pre, samp {
 </div>
 
 
-
 <div class="pure-g">
   <div class="pure-u-1-24 pure-u-md-5-24"></div>
   <div class="pure-u-11-12 pure-u-md-7-12">
-    <div class="post-content">
-      <p class="posts-name">Cmake:</p>
+    <div class="post">
 
-      <ul class="posts">
+      <div class="post-title">
+        <p class="footnote">
+          <time datetime="2019-07-21 20:28:58 &#43;0400 &#43;04">
+            
+              2019-07-21
+            
+          </time>
         
         
+        |
         
-        <li>
-          
-          <a class="post-list" href="http://sergey-pashaev.github.io/posts/cmake-conan-no-output-dirs/">Conan перемещает ваши бинарники без спроса</a>
+        
+        tags: [ <a href="http://sergey-pashaev.github.io/tags/c&#43;&#43;">c&#43;&#43;</a> <a href="http://sergey-pashaev.github.io/tags/valgrind">valgrind</a> <a href="http://sergey-pashaev.github.io/tags/callgrind">callgrind</a> <a href="http://sergey-pashaev.github.io/tags/diff">diff</a> ]
+        
 
-          <p class="footnote">
-            <time datetime="2019-06-22 19:28:14 &#43;0400 &#43;04">
-              
-                2019-06-22
-              
-            </time>
-          </p>
-        </li>
         
+        categories: [ <a href="http://sergey-pashaev.github.io/categories/dev">dev</a> ]
         
-      </ul>
+
+        
+        </p>
+        <h1>cgdiff - diff для профилей callgrind</h1>
+      </div>
+
+      <div class="post-content">
+        
+        <p>Как-то пару лет назад у меня было много задач по работе связанных с
+перформансом, и я много времени проводил работая с
+<a href="http://www.valgrind.org/">valgrind</a> и с визуализатором для него -
+<a href="http://kcachegrind.sourceforge.net/html/Home.html">KCachegrind</a>. KCachegrind
+замечательно всё визуализировал, но мне очень не хватало возможности
+показать разницу между двумя профилями
+<a href="http://valgrind.org/docs/manual/cl-manual.html">callgrind</a>&lsquo;а. Первое
+время я справлялся тем образом, что просто открывал два профиля в двух
+разных окнах и глазами строчка за строчкой отслеживал где значения
+разнятся, но мне очень быстро это надоело. Я стал искать есть ли
+где-то такой инструмент, наверняка не я один с такими задачами
+сталкиваюсь, но к сожалению не нашёл ничего подходящего для меня, но
+вот что нашлось:</p>
+
+<ul>
+<li>скрипт
+<a href="https://sourceware.org/git/?p=valgrind.git;a=blob_plain;f=cachegrind/cg_diff.in;hb=HEAD">cg_diff</a>
+в исходниках valgrind, но он работает с профилями для cachegrind</li>
+<li>скрипт
+<a href="https://github.com/mozilla-b2g/valgrind/pull/1/commits/0d71a579093eebd4bdcbbb8264ed9695bbaf7b29">callgrind_diff.sh</a>
+в одном из PR на гитхабе (по каким конкретно причинами он мне не
+подошёл уже к сожалению не помню)</li>
+</ul>
+
+<p>А потом я увидел утилиту
+<a href="https://github.com/KDE/kcachegrind/tree/master/cgview">cgview</a> в
+исходниках KCachegrind, где уже был готов весь API для доступа к
+данным профиля callgrind. Чтобы решить мои проблемы мне оставалось
+только сделать diff часть для этого тула, что я и сделал.</p>
+
+<p>И получился
+<a href="https://github.com/sergey-pashaev/kcachegrind/tree/cgdiff/cgdiff">cgdiff</a>. И
+пока я решал свои задачи по работе - тул понемногу обрастал фичами
+(разные сортировки, по абсолютным величинам, относительным, per-call
+изменениям, фильтрация по именам функций, по минимальной величине
+изменений и т.д.). Код я особо не причёсывал, но надеюсь у меня
+когда-нибудь найдётся время им снова заняться и может даже протолкнуть
+его в KCachegrind если это будет кому-то полезно.</p>
+
+      </div>
     </div>
   </div>
   <div class="pure-u-1-24 pure-u-md-5-24"></div>
@@ -466,8 +509,6 @@ code, kbd, pre, samp {
 
         </ul>
         <a href="#" class="pure-menu-link pull-right" id="gototop-btn">↑↑</a>
-        
-        <a href="http://sergey-pashaev.github.io/tags/cmake/index.xml" class="pure-menu-link pull-right">RSS</a>
         
       </div>
       

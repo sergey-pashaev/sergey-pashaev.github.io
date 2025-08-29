@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор музыкальных нот</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        .output {
+            margin: 30px 0;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .note-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f5ff;
+            border-radius: 12px;
+            padding: 10px;
+            min-width: 50px;
+            height: 50px;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .note-box:hover {
+            transform: scale(1.05);
+            background-color: #e6edff;
+        }
+        
+        .controls {
+            background-color: #f7f7f7;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .control-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .note-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .note-checkbox {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+
+        .note-checkbox input {
+            margin-right: 5px;
+        }
+
+        input[type="range"] {
+            width: 80%;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="output" id="notesOutput">
+        <!-- Сгенерированные ноты будут здесь -->
+    </div>
+    <button id="generateButton">Сгенерировать</button>
+    <div class="controls">
+        <div class="control-group">
+            <label for="sequenceLength">Длина последовательности: <span id="lengthValue">12</span></label>
+            <input type="range" id="sequenceLength" min="1" max="32" value="12" oninput="updateLengthValue(this.value)">
+        </div>
+
+        <div class="control-group">
+            <label>Выберите ноты для генерации:</label>
+            <div class="note-checkboxes" id="noteCheckboxes">
+                <!-- JavaScript заполнит это -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Массив всех нот
+        const allNotes = ["C", "C♯", "D♭", "D", "D♯", "E♭", "E", "F", "F♯", "G♭", "G", "G♯", "A♭", "A", "A♯", "B", "B♭"];
+        
+        // Создаем чекбоксы для всех нот
+        const noteCheckboxesContainer = document.getElementById('noteCheckboxes');
+
+        allNotes.forEach(note => {
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'note-checkbox';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `note-${note}`;
+            checkbox.value = note;
+            checkbox.checked = true; // По умолчанию все ноты выбраны
+
+            const label = document.createElement('label');
+            label.htmlFor = `note-${note}`;
+            label.textContent = note;
+
+            checkboxDiv.appendChild(checkbox);
+            checkboxDiv.appendChild(label);
+            noteCheckboxesContainer.appendChild(checkboxDiv);
+        });
+
+        // Обновление отображаемого значения длины последовательности
+        function updateLengthValue(value) {
+            document.getElementById('lengthValue').textContent = value;
+        }
+
+        // Генерация случайной последовательности нот
+        function generateSequence() {
+            const length = parseInt(document.getElementById('sequenceLength').value);
+            const outputContainer = document.getElementById('notesOutput');
+
+            // Очищаем предыдущий результат
+            outputContainer.innerHTML = '';
+
+            // Получаем выбранные ноты
+            const selectedNotes = [];
+            document.querySelectorAll('.note-checkbox input:checked').forEach(checkbox => {
+                selectedNotes.push(checkbox.value);
+            });
+
+            // Проверяем, что выбрана хотя бы одна нота
+            if (selectedNotes.length === 0) {
+                const errorMsg = document.createElement('div');
+                errorMsg.textContent = "Выберите хотя бы одну ноту";
+                errorMsg.style.color = "red";
+                outputContainer.appendChild(errorMsg);
+                return;
+            }
+
+            // Генерируем последовательность
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * selectedNotes.length);
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note-box';
+                noteElement.textContent = selectedNotes[randomIndex];
+                outputContainer.appendChild(noteElement);
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('generateButton').addEventListener('click', generateSequence);
+            generateSequence(); // Генерируем начальную последовательность
+        });
+
+          document.addEventListener('DOMContentLoaded', function() {
+      // Создаем элемент canvas
+      var canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      
+      // Получаем контекст для рисования
+      var ctx = canvas.getContext('2d');
+      
+      // Заполняем фон
+      ctx.fillStyle = '#4285f4';
+      ctx.fillRect(0, 0, 32, 32);
+      
+      // Добавляем текст или форму
+      ctx.fillStyle = 'white';
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('N', 16, 16);
+      
+      // Преобразуем canvas в data URL
+      var dataUrl = canvas.toDataURL('image/png');
+      
+      // Создаем и добавляем элемент link для фавиконки
+      var link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.href = dataUrl;
+      
+      // Добавляем фавиконку в head
+      document.head.appendChild(link);
+    });
+          
+    </script>
+</body>
+</html>

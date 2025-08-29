@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор диатонической последовательности аккордов</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #fcfcfc;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        small {
+            font-size: 16px;
+        }
+        
+        .chord-sequence {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .chord-box {
+            background-color: #f0f5ff;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .chord-box:hover {
+            transform: scale(1.05);
+            background-color: #e6edff;
+        }
+        
+        /* Цвета для разных ступеней */
+        .chord-box.degree-1 { background-color: #e8f5e9; }
+        .chord-box.degree-2 { background-color: #fff8e1; }
+        .chord-box.degree-3 { background-color: #e1f5fe; }
+        .chord-box.degree-4 { background-color: #f3e5f5; }
+        .chord-box.degree-5 { background-color: #ffebee; }
+        .chord-box.degree-6 { background-color: #e0f2f1; }
+        .chord-box.degree-7 { background-color: #f9fbe7; }
+
+        .controls {
+            background-color: #f7f7f7;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .control-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+
+        .checkbox-item input {
+            margin-right: 5px;
+        }
+
+        input[type="range"] {
+            width: 80%;
+            max-width: 300px;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .key-info {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .random-key-option {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .random-key-option input {
+            margin-right: 8px;
+        }
+
+        .random-key-option label {
+            display: inline;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .chord-types-section {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .tabbed-content {
+            margin-top: 15px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 5px;
+        }
+
+        .tab-button {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="chord-sequence" id="chordSequence">
+        <!-- Сгенерированные аккорды будут здесь -->
+    </div>
+    <button id="generateButton">Сгенерировать аккорды</button>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="keySelect">Выберите тональность:</label>
+            <select id="keySelect">
+                <option value="C">C (До мажор)</option>
+                <option value="D">D (Ре мажор)</option>
+                <option value="G">G (Соль мажор)</option>
+                <option value="A">A (Ля мажор)</option>
+                <option value="E">E (Ми мажор)</option>
+                <option value="B">B (Си мажор)</option>
+                <option value="F#">F# (Фа-диез мажор)</option>
+                <option value="C#">C# (До-диез мажор)</option>
+                <option value="F">F (Фа мажор)</option>
+                <option value="Bb">Bb (Си-бемоль мажор)</option>
+                <option value="Eb">Eb (Ми-бемоль мажор)</option>
+                <option value="Ab">Ab (Ля-бемоль мажор)</option>
+                <option value="Db">Db (Ре-бемоль мажор)</option>
+                <option value="Gb">Gb (Соль-бемоль мажор)</option>
+                <option value="Cb">Cb (До-бемоль мажор)</option>
+            </select>
+            <div class="key-info" id="keyInfo"></div>
+            <div class="random-key-option">
+              <input type="checkbox" id="randomKeyOption">
+              <label for="randomKeyOption">Случайная тональность при каждой генерации</label>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="sequenceLength">Длина последовательности: <span id="lengthValue">8</span></label>
+            <input type="range" id="sequenceLength" min="2" max="12" value="8" oninput="updateLengthValue(this.value)">
+        </div>
+
+        <div class="control-group">
+            <label>Выберите доступные ступени:</label>
+            <div class="checkbox-group" id="chordDegrees">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-1" value="1" checked>
+                    <label for="degree-1">I</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-2" value="2" checked>
+                    <label for="degree-2">ii</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-3" value="3" checked>
+                    <label for="degree-3">iii</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-4" value="4" checked>
+                    <label for="degree-4">IV</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-5" value="5" checked>
+                    <label for="degree-5">V</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-6" value="6" checked>
+                    <label for="degree-6">vi</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="degree-7" value="7" checked>
+                    <label for="degree-7">vii°</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group chord-types-section">
+            <label>Выберите типы аккордов для каждой ступени:</label>
+
+            <div class="tabbed-content">
+                <div class="tab-buttons" id="tabButtons">
+                    <div class="tab-button active" data-tab="tab-1">I</div>
+                    <div class="tab-button" data-tab="tab-2">ii</div>
+                    <div class="tab-button" data-tab="tab-3">iii</div>
+                    <div class="tab-button" data-tab="tab-4">IV</div>
+                    <div class="tab-button" data-tab="tab-5">V</div>
+                    <div class="tab-button" data-tab="tab-6">vi</div>
+                    <div class="tab-button" data-tab="tab-7">vii°</div>
+                </div>
+
+                <div class="tab-content active" id="tab-1">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-1-major" value="major" checked>
+                            <label for="type-1-major">Major</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-1-maj7" value="maj7" checked>
+                            <label for="type-1-maj7">Maj7</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-1-6" value="6" checked>
+                            <label for="type-1-6">6</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-1-sus2" value="sus2" checked>
+                            <label for="type-1-sus2">sus2</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-1-sus4" value="sus4" checked>
+                            <label for="type-1-sus4">sus4</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-2">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-2-minor" value="minor" checked>
+                            <label for="type-2-minor">Minor</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-2-m7" value="m7" checked>
+                            <label for="type-2-m7">m7</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-2-m6" value="m6" checked>
+                            <label for="type-2-m6">m6</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-2-sus2" value="sus2" checked>
+                            <label for="type-2-sus2">sus2</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-2-sus4" value="sus4" checked>
+                            <label for="type-2-sus4">sus4</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-3">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-3-minor" value="minor" checked>
+                            <label for="type-3-minor">Minor</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-3-m7" value="m7" checked>
+                            <label for="type-3-m7">m7</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-3-sus4" value="sus4" checked>
+                            <label for="type-3-sus4">sus4</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-4">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-4-major" value="major" checked>
+                            <label for="type-4-major">Major</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-4-maj7" value="maj7" checked>
+                            <label for="type-4-maj7">Maj7</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-4-6" value="6" checked>
+                            <label for="type-4-6">6</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-4-sus2" value="sus2" checked>
+                            <label for="type-4-sus2">sus2</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-5">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-5-major" value="major" checked>
+                            <label for="type-5-major">Major</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-5-7" value="7" checked>
+                            <label for="type-5-7">7</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-5-6" value="6" checked>
+                            <label for="type-5-6">6</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-5-sus2" value="sus2" checked>
+                            <label for="type-5-sus2">sus2</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-5-sus4" value="sus4" checked>
+                            <label for="type-5-sus4">sus4</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-6">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-6-minor" value="minor" checked>
+                            <label for="type-6-minor">Minor</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-6-m7" value="m7" checked>
+                            <label for="type-6-m7">m7</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-6-sus2" value="sus2" checked>
+                            <label for="type-6-sus2">sus2</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-6-sus4" value="sus4" checked>
+                            <label for="type-6-sus4">sus4</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-7">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="type-7-dim" value="dim" checked>
+                            <label for="type-7-dim">dim</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Выберите форму аккордов:</label>
+            <div class="checkbox-group" id="chordShapes">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="shape-6" value="6th str" checked>
+                    <label for="shape-C">6 струна</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="shape-5" value="5th str" checked>
+                    <label for="shape-A">5 струна</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="shape-4" value="4th str" checked>
+                    <label for="shape-G">4 струна</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Массив всех нот
+        const allNotes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        
+        // Энгармонические эквиваленты для отображения
+        const enharmonicEquivalents = {
+            "C#": "Db",
+            "D#": "Eb",
+            "F#": "Gb",
+            "G#": "Ab",
+            "A#": "Bb"
+        };
+
+        const enharmonicEquivalents2 = {
+            "Db": "C#",
+            "Eb": "D#",
+            "Gb": "F#",
+            "Ab": "G#",
+            "Bb": "A#"
+        };      
+      
+        // Структура мажорной гаммы (в полутонах)
+        const majorScalePattern = [0, 2, 4, 5, 7, 9, 11];
+        
+        // Римские цифры для отображения ступеней
+        const degreeRomanNumerals = {
+            1: "I",
+            2: "ii",
+            3: "iii",
+            4: "IV",
+            5: "V",
+            6: "vi",
+            7: "vii°"
+        };
+        
+        // Отображаемые названия типов аккордов
+        const chordTypeDisplayNames = {
+            "major": "",    // мажорные аккорды пишутся без суффикса
+            "minor": "m",
+            "dim": "dim",
+            "maj7": "maj7",
+            "7": "7",
+            "m7": "m7",
+            "6": "6",
+            "m6": "m6",
+            "sus2": "sus2",
+            "sus4": "sus4"
+        };
+
+        function getRandomKey() {
+            return allNotes[Math.floor(Math.random() * allNotes.length)];
+        }
+      
+        // Обновление отображаемого значения длины последовательности
+        function updateLengthValue(value) {
+            document.getElementById('lengthValue').textContent = value;
+        }
+        
+        // Функция для получения выбранных чекбоксов
+        function getSelectedValues(groupId) {
+            const selected = [];
+            document.querySelectorAll(`#${groupId} input:checked`).forEach(checkbox => {
+                selected.push(checkbox.value);
+            });
+            return selected;
+        }
+        
+        // Получение нот мажорной гаммы от заданной тоники
+        function getMajorScaleNotes(rootNote) {
+            const note = enharmonicEquivalents2[rootNote] || rootNote;
+            const rootIndex = allNotes.indexOf(note);
+            const scaleNotes = [];
+            for (let i = 0; i < majorScalePattern.length; i++) {
+                const noteIndex = (rootIndex + majorScalePattern[i]) % 12;
+                scaleNotes.push(allNotes[noteIndex]);
+            }
+            
+            return scaleNotes;
+        }
+        
+        // Форматирование отображаемого названия ноты (с учетом бемолей)
+        function formatDisplayNote(note, key) {
+            // Если тональность с бемолями, используем бемольные обозначения
+            if (["Bb", "Eb", "Ab", "Db", "Gb", "Cb"].includes(key)) {
+                return enharmonicEquivalents[note] || note;
+            }
+            return note;
+        }
+        
+        // Обновление информации о тональности
+        function updateKeyInfo() {
+            const keySelect = document.getElementById('keySelect');
+            const selectedKey = keySelect.value;
+            const keyInfoElement = document.getElementById('keyInfo');
+            
+            const scaleNotes = getMajorScaleNotes(selectedKey);
+            let keyInfoText = "Ноты диатонической гаммы: ";
+            
+            for (let i = 0; i < scaleNotes.length; i++) {
+                const note = formatDisplayNote(scaleNotes[i], selectedKey);
+                keyInfoText += note;
+                
+                if (i < scaleNotes.length - 1) {
+                    keyInfoText += ", ";
+                }
+            }
+            
+            keyInfoElement.textContent = keyInfoText;
+        }
+        
+        // Получение выбранных типов аккордов для указанной ступени
+        function getSelectedChordTypes(degree) {
+            return getSelectedValues(`tab-${degree}`);
+        }
+        
+        // Генерация случайного диатонического аккорда
+        function generateRandomDiatonicChord() {
+            // Получаем выбранную тональность
+            const selectedKey = document.getElementById('keySelect').value;
+            
+            // Получаем выбранные ступени
+            const selectedDegrees = getSelectedValues('chordDegrees').map(Number);
+            
+            // Получаем выбранные формы аккордов
+            const selectedShapes = getSelectedValues('chordShapes');
+            
+            // Проверяем, что выбрана хотя бы одна ступень и одна форма
+            if (selectedDegrees.length === 0 || selectedShapes.length === 0) {
+                return "Выберите параметры";
+            }
+            
+            // Выбираем случайную ступень
+            const randomDegree = selectedDegrees[Math.floor(Math.random() * selectedDegrees.length)];
+            
+            // Получаем выбранные типы аккордов для этой ступени
+            const selectedChordTypes = getSelectedChordTypes(randomDegree);
+            
+            if (selectedChordTypes.length === 0) {
+                return "Нет доступных типов аккордов для ступени " + degreeRomanNumerals[randomDegree];
+            }
+            
+            // Выбираем случайный тип аккорда
+            const randomChordType = selectedChordTypes[Math.floor(Math.random() * selectedChordTypes.length)];
+            
+            // Получаем ноты гаммы
+            const scaleNotes = getMajorScaleNotes(selectedKey);
+            
+            // Получаем тонику для аккорда выбранной ступени
+            const chordRoot = scaleNotes[randomDegree - 1];
+            
+            // Выбираем случайную форму аккорда
+            const randomShape = selectedShapes[Math.floor(Math.random() * selectedShapes.length)];
+            
+            // Форматируем отображаемое название ноты
+            const displayRoot = formatDisplayNote(chordRoot, selectedKey);
+            
+            // Формируем название аккорда
+            const chordName = displayRoot + chordTypeDisplayNames[randomChordType];
+            
+            // Возвращаем информацию об аккорде
+            return {
+                name: chordName,
+                shape: randomShape,
+                degree: randomDegree,
+                romanNumeral: degreeRomanNumerals[randomDegree],
+                type: randomChordType
+            };
+        }
+        
+        // Генерация последовательности аккордов
+        function generateChordSequence() {
+            const sequenceLength = parseInt(document.getElementById('sequenceLength').value);
+            const chordSequenceContainer = document.getElementById('chordSequence');
+
+            // Если выбрана опция случайной тональности, меняем её
+            if (document.getElementById('randomKeyOption').checked) {
+                const randomKey = getRandomKey();
+                const newValue = enharmonicEquivalents[randomKey] || randomKey;
+                document.getElementById('keySelect').value = newValue;
+                updateKeyInfo(); // Обновляем информацию о тональности
+            }
+            
+            // Очищаем контейнер
+            chordSequenceContainer.innerHTML = '';
+            
+            // Генерируем новую последовательность аккордов
+            for (let i = 0; i < sequenceLength; i++) {
+                const chord = generateRandomDiatonicChord();
+                
+                const chordElement = document.createElement('div');
+                chordElement.className = 'chord-box';
+                
+                if (typeof chord === 'string') {
+                    // Если вернулась ошибка
+                    chordElement.textContent = chord;
+                } else {
+                    // Добавляем класс для цвета в зависимости от ступени
+                    chordElement.classList.add(`degree-${chord.degree}`);
+                    
+                    // Если аккорд сгенерирован успешно
+                    chordElement.innerHTML = `${chord.name}<br><small>(${chord.romanNumeral}&nbsp;&nbsp;${chord.shape})</small>`;
+                }
+                
+                chordSequenceContainer.appendChild(chordElement);
+            }
+        }
+        
+        // Настройка табов для типов аккордов
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Убираем активный класс со всех кнопок и контента
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Добавляем активный класс на выбранную кнопку и контент
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.tab).classList.add('active');
+                });
+            });
+        }
+        
+        // Привязка события к кнопке
+        document.getElementById('generateButton').addEventListener('click', generateChordSequence);
+        
+        // Привязка события к выбору тональности
+        document.getElementById('keySelect').addEventListener('change', updateKeyInfo);
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTabs();
+            updateKeyInfo();
+            generateChordSequence();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+      // Создаем элемент canvas
+      var canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+
+      // Получаем контекст для рисования
+      var ctx = canvas.getContext('2d');
+
+      // Заполняем фон
+      ctx.fillStyle = '#4285f4';
+      ctx.fillRect(0, 0, 32, 32);
+
+      // Добавляем текст или форму
+      ctx.fillStyle = 'white';
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('C', 16, 16);
+
+      // Преобразуем canvas в data URL
+      var dataUrl = canvas.toDataURL('image/png');
+
+      // Создаем и добавляем элемент link для фавиконки
+      var link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.href = dataUrl;
+
+      // Добавляем фавиконку в head
+      document.head.appendChild(link);
+    });
+    </script>
+</body>
+</html>

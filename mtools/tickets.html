@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расчёт концертного графика группы</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1e3a8a;
+            font-weight: 800;
+            font-size: 28px;
+        }
+        
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+            font-weight: 700;
+            font-size: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .summary-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .chart-container {
+            margin: 25px 0;
+            height: 300px;
+        }
+
+        .conclusion {
+            background-color: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        .warning {
+            color: var(--warning);
+        }
+
+        .danger {
+            color: var(--danger);
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tab-container {
+            margin: 20px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background-color: transparent;
+            color: #6b7280;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            padding: 20px 0;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Стиль для современных карточек концертных вариантов */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .option-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .option-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .option-card .details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-card .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .option-card .detail-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .option-card .feasibility {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Расчёт концертного графика музыкальной группы в Москве</h1>
+
+        <div class="card">
+            <h2>Параметры расчёта</h2>
+            <div class="input-grid">
+                <div>
+                    <div class="input-group">
+                        <label for="members">Участников в группе</label>
+                        <input type="number" id="members" value="5" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="targetIncome">Целевой доход на участника (₽/мес)</label>
+                        <input type="number" id="targetIncome" value="200000" min="10000" step="10000">
+                    </div>
+                    <div class="input-group">
+                        <label for="revenueShare">
+                            Доля группы от сборов
+                            <span class="tooltip">ⓘ
+                                <span class="tooltip-text">Часть выручки, которая останется группе после оплаты аренды, рекламы, промоутеров</span>
+                            </span>
+                        </label>
+                        <input type="number" id="revenueShare" value="0.5" min="0.1" max="1" step="0.05">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="input-group">
+                        <label for="streamListeners">Слушателей на стримингах (в месяц)</label>
+                        <input type="number" id="streamListeners" value="40000" min="1000" step="1000">
+                    </div>
+                    <div class="input-group">
+                        <label for="moscowShare">
+                            Доля московской аудитории
+                            <span class="tooltip">ⓘ
+                                <span class="tooltip-text">Обычно 15-30% для российских групп</span>
+                            </span>
+                        </label>
+                        <input type="number" id="moscowShare" value="0.25" min="0.01" max="1" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label for="conversionRate">
+                            Конверсия слушателей в билеты
+                            <span class="tooltip">ⓘ
+                                <span class="tooltip-text">Доля слушателей, которые реально купят билет (0.5-2%)</span>
+                            </span>
+                        </label>
+                        <input type="number" id="conversionRate" value="0.01" min="0.001" max="0.1" step="0.001">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="input-group">
+                        <label for="ticketPrices">Цены на билеты (через запятую, ₽)</label>
+                        <input type="text" id="ticketPrices" value="1500,1800,2000,2500">
+                    </div>
+                    <div class="input-group">
+                        <label for="venueCapacities">Вместимость залов (через запятую, чел)</label>
+                        <input type="text" id="venueCapacities" value="300,500,700,1500">
+                    </div>
+                    <div class="input-group">
+                        <button id="calculate">Рассчитать</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <p><strong>Цель:</strong> <span id="bandGoal">1,000,000</span> ₽ в месяц на группу (<span id="perMemberGoal">200,000</span> ₽ на каждого участника)</p>
+                <p><strong>Потенциальных посетителей из Москвы:</strong> около <span id="potentialAttendees">100</span> человек</p>
+            </div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="concert-options">Варианты концертов</button>
+                <button class="tab-button" data-tab="audience-analysis">Анализ аудитории</button>
+                <button class="tab-button" data-tab="recommendations">Рекомендации</button>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-panel active" id="concert-options">
+                    <div class="card">
+                        <h2>Оптимальные варианты концертного графика</h2>
+                        <div id="optionsContainer" class="options-grid"></div>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="audience-analysis">
+                    <div class="card">
+                        <h2>Связь размера аудитории стримингов и продаж билетов</h2>
+                        <div class="chart-container">
+                            <canvas id="conversionChart"></canvas>
+                        </div>
+
+                        <h2>Прогнозирование количества проданных билетов</h2>
+                        <div class="chart-container">
+                            <canvas id="audienceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="recommendations">
+                    <div class="card">
+                        <h2>Рекомендации по концертному графику</h2>
+                        <div class="conclusion">
+                            <p><strong>Основные выводы:</strong></p>
+                            <ul id="conclusions"></ul>
+                        </div>
+
+                        <h2>Сравнение эффективности разных вариантов</h2>
+                        <div class="chart-container">
+                            <canvas id="comparisionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Форматирование чисел для вывода
+        function formatNumber(number) {
+            return new Intl.NumberFormat('ru-RU').format(number);
+        }
+        
+        // Парсинг списков, разделенных запятыми
+        function parseCommaSeparatedList(inputString) {
+            return inputString.split(',')
+                .map(item => parseFloat(item.trim()))
+                .filter(item => !isNaN(item));
+        }
+        
+        // Обработка вкладок
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Сбросить активные вкладки
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+                
+                // Активировать выбранную вкладку
+                button.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Основные расчеты
+        let conversionChart, audienceChart, comparisionChart;
+        
+        document.getElementById('calculate').addEventListener('click', calculateAll);
+        
+        // Рассчитать всё при загрузке страницы
+        window.addEventListener('load', calculateAll);
+        
+        function calculateAll() {
+            // Получение значений из формы
+            const members = parseInt(document.getElementById('members').value) || 5;
+            const targetIncome = parseFloat(document.getElementById('targetIncome').value) || 200000;
+            const revenueShare = parseFloat(document.getElementById('revenueShare').value) || 0.5;
+            const streamListeners = parseInt(document.getElementById('streamListeners').value) || 40000;
+            const moscowShare = parseFloat(document.getElementById('moscowShare').value) || 0.25;
+            const conversionRate = parseFloat(document.getElementById('conversionRate').value) || 0.01;
+            
+            const ticketPricesInput = document.getElementById('ticketPrices').value;
+            const venueCapacitiesInput = document.getElementById('venueCapacities').value;
+            
+            const ticketPrices = parseCommaSeparatedList(ticketPricesInput);
+            const venueCapacities = parseCommaSeparatedList(venueCapacitiesInput);
+            
+            // Расчеты
+            const bandGoal = members * targetIncome;
+            const grossRevenueNeeded = bandGoal / revenueShare;
+            const moscowListeners = streamListeners * moscowShare;
+            const expectedAttendees = Math.floor(moscowListeners * conversionRate);
+            
+            // Обновление суммарной информации
+            document.getElementById('bandGoal').textContent = formatNumber(bandGoal);
+            document.getElementById('perMemberGoal').textContent = formatNumber(targetIncome);
+            document.getElementById('potentialAttendees').textContent = formatNumber(expectedAttendees);
+            
+            // Генерация вариантов концертов
+            generateConcertOptions(
+                bandGoal, grossRevenueNeeded, revenueShare, 
+                ticketPrices, venueCapacities, expectedAttendees
+            );
+            
+            // Обновление графиков
+            updateConversionChart(streamListeners, moscowShare);
+            updateAudienceChart(moscowListeners);
+            updateComparisionChart(ticketPrices, venueCapacities, grossRevenueNeeded);
+            
+            // Генерация выводов
+            generateConclusions(
+                expectedAttendees, venueCapacities, 
+                ticketPrices, grossRevenueNeeded, revenueShare
+            );
+        }
+        
+        function generateConcertOptions(bandGoal, grossRevenueNeeded, revenueShare, ticketPrices, venueCapacities, expectedAttendees) {
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            const options = [];
+            
+            // Перебор всех возможных комбинаций зал × билет
+            for (const venue of venueCapacities) {
+                for (const price of ticketPrices) {
+                    const revenuePerConcert = venue * price;
+                    const netRevenuePerConcert = revenuePerConcert * revenueShare;
+                    const concertsNeeded = grossRevenueNeeded / revenuePerConcert;
+                    
+                    // Проверяем, реально ли собрать такой зал
+                    const isFeasible = venue <= expectedAttendees * 1.2; // Допускаем 20% запас по конверсии
+                    const difficultyLevel = getVenueDifficultyLevel(venue, expectedAttendees);
+                    
+                    // Добавляем только реалистичные варианты (не больше 8 концертов в месяц)
+                    if (concertsNeeded <= 8) {
+                        options.push({
+                            venue,
+                            price,
+                            revenuePerConcert,
+                            netRevenuePerConcert,
+                            concertsNeeded,
+                            isFeasible,
+                            difficultyLevel
+                        });
+                    }
+                }
+            }
+            
+            // Сортировка по реалистичности, затем по необходимому количеству концертов
+            options.sort((a, b) => {
+                if (a.isFeasible !== b.isFeasible) {
+                    return a.isFeasible ? -1 : 1; // Реалистичные в начале
+                }
+                return a.concertsNeeded - b.concertsNeeded; // Затем по числу концертов
+            });
+            
+            // Показываем топ-6 вариантов
+            const topOptions = options.slice(0, 6);
+            
+            topOptions.forEach(option => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                
+                const concertsRounded = Math.ceil(option.concertsNeeded);
+                
+                let feasibilityText, feasibilityClass;
+                if (option.difficultyLevel === 'easy') {
+                    feasibilityText = 'ЛЕГКО СОБРАТЬ';
+                    feasibilityClass = 'success';
+                } else if (option.difficultyLevel === 'moderate') {
+                    feasibilityText = 'ВОЗМОЖНО СОБРАТЬ';
+                    feasibilityClass = 'warning';
+                } else {
+                    feasibilityText = 'СЛОЖНО СОБРАТЬ';
+                    feasibilityClass = 'danger';
+                }
+                
+                card.innerHTML = `
+                    <h3>${concertsRounded} концерт${concertsRounded === 1 ? '' : concertsRounded < 5 ? 'а' : 'ов'} в месяц</h3>
+                    <div class="details">
+                        <div class="detail-item">
+                            <span class="detail-label">Размер зала:</span>
+                            <span>${formatNumber(option.venue)} чел</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Цена билета:</span>
+                            <span>${formatNumber(option.price)} ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Выручка за концерт:</span>
+                            <span>${formatNumber(Math.floor(option.revenuePerConcert))} ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Группе за концерт:</span>
+                            <span>${formatNumber(Math.floor(option.netRevenuePerConcert))} ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Точное число концертов:</span>
+                            <span>${option.concertsNeeded.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="feasibility ${feasibilityClass}">
+                        ${feasibilityText}
+                    </div>
+                `;
+                
+                optionsContainer.appendChild(card);
+            });
+            
+            // Если нет реалистичных вариантов
+            if (topOptions.length === 0) {
+                optionsContainer.innerHTML = `
+                    <div class="card">
+                        <p>Нет реалистичных вариантов. Попробуйте:</p>
+                        <ul>
+                            <li>Снизить целевой доход</li>
+                            <li>Уменьшить размер зала</li>
+                            <li>Повысить цену билета</li>
+                            <li>Увеличить количество концертов в месяц</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        function getVenueDifficultyLevel(venue, expectedAttendees) {
+            const ratio = venue / expectedAttendees;
+            if (ratio <= 0.8) {
+                return 'easy'; // Можно легко собрать
+            } else if (ratio <= 1.2) {
+                return 'moderate'; // Можно собрать с хорошим продвижением
+            } else {
+                return 'hard'; // Сложно собрать
+            }
+        }
+        
+        function updateConversionChart(streamListeners, moscowShare) {
+            const moscowListeners = streamListeners * moscowShare;
+            
+            // Разные коэффициенты конверсии
+            const conversionRates = [0.005, 0.01, 0.02, 0.03];
+            const labels = conversionRates.map(rate => `${(rate * 100).toFixed(1)}% конверсия`);
+            const data = conversionRates.map(rate => Math.floor(moscowListeners * rate));
+            
+            const ctx = document.getElementById('conversionChart').getContext('2d');
+            
+            if (conversionChart) {
+                conversionChart.destroy();
+            }
+            
+            conversionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ожидаемое количество проданных билетов',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 206, 86)',
+                            'rgb(75, 192, 192)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `При ${formatNumber(moscowListeners)} московских слушателях на стримингах`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Количество билетов'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateAudienceChart(moscowListeners) {
+            // Диапазон аудитории
+            const audienceMultipliers = [0.5, 0.75, 1, 1.5, 2, 3];
+            const audienceSizes = audienceMultipliers.map(mult => Math.floor(moscowListeners * mult));
+            
+            // Конверсии
+            const lowConversion = 0.005;  // 0.5%
+            const avgConversion = 0.01;   // 1%
+            const highConversion = 0.02;  // 2%
+            
+            const lowData = audienceSizes.map(size => Math.floor(size * lowConversion));
+            const avgData = audienceSizes.map(size => Math.floor(size * avgConversion));
+            const highData = audienceSizes.map(size => Math.floor(size * highConversion));
+            
+            const ctx = document.getElementById('audienceChart').getContext('2d');
+            
+            if (audienceChart) {
+                audienceChart.destroy();
+            }
+            
+            audienceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: audienceSizes.map(size => formatNumber(size)),
+                    datasets: [
+                        {
+                            label: 'Низкая конверсия (0.5%)',
+                            data: lowData,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Средняя конверсия (1%)',
+                            data: avgData,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Высокая конверсия (2%)',
+                            data: highData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Прогноз продаж билетов при разной аудитории'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Московская аудитория на стримингах'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Проданных билетов'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateComparisionChart(ticketPrices, venueCapacities, grossRevenueNeeded) {
+            // Выбираем средние залы и цены для анализа
+            const selectedVenues = venueCapacities.sort((a, b) => a - b).slice(0, 3);
+            
+            const datasets = [];
+            const colors = [
+                'rgba(255, 99, 132, 1)', 
+                'rgba(54, 162, 235, 1)', 
+                'rgba(75, 192, 192, 1)'
+            ];
+            
+            selectedVenues.forEach((venue, index) => {
+                const concertsNeeded = ticketPrices.map(price => 
+                    grossRevenueNeeded / (venue * price)
+                );
+                
+                datasets.push({
+                    label: `Зал на ${venue} человек`,
+                    data: concertsNeeded,
+                    borderColor: colors[index],
+                    backgroundColor: colors[index].replace('1)', '0.2)'),
+                    tension: 0.3
+                });
+            });
+            
+            const ctx = document.getElementById('comparisionChart').getContext('2d');
+            
+            if (comparisionChart) {
+                comparisionChart.destroy();
+            }
+            
+            comparisionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ticketPrices.map(price => `${formatNumber(price)} ₽`),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Количество концертов в месяц для разных залов и цен'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Цена билета (₽)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Необходимое количество концертов'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generateConclusions(expectedAttendees, venueCapacities, ticketPrices, grossRevenueNeeded, revenueShare) {
+            const conclusionsElement = document.getElementById('conclusions');
+            conclusionsElement.innerHTML = '';
+            
+            // Определение оптимального зала
+            const optimalVenue = venueCapacities.filter(venue => venue <= expectedAttendees * 1.2)
+                .sort((a, b) => b - a)[0] || venueCapacities[0];
+            
+            // Определение оптимальной цены
+            const medianPrice = ticketPrices.sort((a, b) => a - b)[Math.floor(ticketPrices.length / 2)];
+            const highPrice = Math.max(...ticketPrices);
+            
+            // Расчет оптимального количества концертов
+            const concertsNeededMedianPrice = Math.ceil(grossRevenueNeeded / (optimalVenue * medianPrice));
+            const concertsNeededHighPrice = Math.ceil(grossRevenueNeeded / (optimalVenue * highPrice));
+            
+            // Добавление выводов
+            const conclusions = [
+                `С вашей аудиторией стримингов реально продать около <strong>${formatNumber(expectedAttendees)}</strong> билетов на концерт в Москве.`,
+                `Оптимальный размер зала для вашей аудитории: <strong>${formatNumber(optimalVenue)}</strong> человек.`,
+                `С ценой билета <strong>${formatNumber(medianPrice)} ₽</strong> вам нужно проводить <strong>${concertsNeededMedianPrice}</strong> ${getKoncertText(concertsNeededMedianPrice)} в месяц.`,
+                `С ценой билета <strong>${formatNumber(highPrice)} ₽</strong> вам нужно проводить <strong>${concertsNeededHighPrice}</strong> ${getKoncertText(concertsNeededHighPrice)} в месяц.`,
+                `Чистый доход группы с одного концерта в оптимальном зале: <strong>${formatNumber(Math.floor(optimalVenue * medianPrice * revenueShare))}</strong> ₽.`
+            ];
+            
+            conclusions.forEach(conclusion => {
+                const li = document.createElement('li');
+                li.innerHTML = conclusion;
+                conclusionsElement.appendChild(li);
+            });
+            
+            // Если сложно собрать нужное количество концертов
+            if (concertsNeededMedianPrice > 4) {
+                const li = document.createElement('li');
+                li.innerHTML = '<strong class="warning">Обратите внимание:</strong> Для достижения целевого дохода вам нужно больше 4 концертов в месяц. Это может быть сложно организовать без потери посещаемости. Рассмотрите повышение цены билета или увеличение размера зала.';
+                conclusionsElement.appendChild(li);
+            }
+            
+            // Если аудитории не хватает для зала
+            if (expectedAttendees < optimalVenue * 0.8) {
+                const li = document.createElement('li');
+                li.innerHTML = '<strong class="danger">Предупреждение:</strong> Вашей текущей аудитории может быть недостаточно для заполнения указанного зала. Рассмотрите меньший зал или активное продвижение концертов.';
+                conclusionsElement.appendChild(li);
+            }
+        }
+        
+        function getKoncertText(number) {
+            if (number === 1) return 'концерт';
+            if (number >= 2 && number <= 4) return 'концерта';
+            return 'концертов';
+        }
+    </script>
+</body>
+</html>

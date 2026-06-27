@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер диатонической гармонии</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #343a40;
+        }
+        
+        .question-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .degree {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #007bff;
+        }
+        
+        .chord-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 10px;
+        }
+        
+        .chord-option {
+            background-color: #f1f3f5;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        
+        .chord-option:hover {
+            background-color: #e9ecef;
+        }
+
+        .chord-option.selected {
+            background-color: #d0ebff;
+            border-color: #339af0;
+        }
+
+        .correct {
+            background-color: #d3f9d8 !important;
+            border-color: #40c057 !important;
+        }
+
+        .incorrect {
+            background-color: #ffe3e3 !important;
+            border-color: #fa5252 !important;
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.success {
+            background-color: #d3f9d8;
+            color: #2b8a3e;
+            display: block;
+        }
+
+        .feedback.error {
+            background-color: #ffe3e3;
+            color: #c92a2a;
+            display: block;
+        }
+
+        .btn {
+            background-color: #339af0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #228be6;
+        }
+
+        .btn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .help-btn {
+            background-color: #868e96;
+            margin-top: 20px;
+        }
+
+        .help-btn:hover {
+            background-color: #495057;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        .chord-description {
+            margin-top: 30px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #339af0;
+            display: none; /* Скрыта по умолчанию */
+            transition: all 0.3s ease-in-out;
+        }
+
+        .chord-description.visible {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="score">Правильных ответов: <span id="correctAnswers">0</span> из <span id="totalQuestions">0</span></div>
+
+    <div class="question-container">
+        <p>Какие типы аккордов подходят для ступени:</p>
+        <div class="degree" id="currentDegree">I</div>
+
+        <div class="chord-options" id="chordOptions">
+            <div class="chord-option" data-type="major">Major</div>
+            <div class="chord-option" data-type="minor">Minor</div>
+            <div class="chord-option" data-type="maj7">Maj7</div>
+            <div class="chord-option" data-type="7">7</div>
+            <div class="chord-option" data-type="m7">m7</div>
+            <div class="chord-option" data-type="6">6</div>
+            <div class="chord-option" data-type="m6">m6</div>
+            <div class="chord-option" data-type="dim">dim</div>
+            <div class="chord-option" data-type="m7b5">m7b5</div>
+            <div class="chord-option" data-type="sus2">sus2</div>
+            <div class="chord-option" data-type="sus4">sus4</div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <button class="btn" id="checkButton">Проверить ответ</button>
+        <button class="btn" id="genButton">Сгенерировать вопрос</button>
+    </div>
+
+    <div class="text-center">
+      <button class="btn help-btn" id="toggleReferenceButton">Показать  справку</button>
+    </div>
+    <div class="chord-description" id="chordDescription">
+        <h3>Диатоническая гармония в мажоре:</h3>
+        <p>
+            <strong>I ступень:</strong> Major, Maj7, 6, sus2, sus4<br>
+            <strong>ii ступень:</strong> Minor, m7, m6, sus2, sus4<br>
+            <strong>iii ступень:</strong> Minor, m7, sus4<br>
+            <strong>IV ступень:</strong> Major, Maj7, 6, sus2<br>
+            <strong>V ступень:</strong> Major, 7, 6, sus2, sus4<br>
+            <strong>vi ступень:</strong> Minor, m7, sus2, sus4<br>
+            <strong>vii ступень:</strong> Diminished, m7b5
+        </p>
+    </div>
+
+    <script>
+        // Определение диатонических аккордов для каждой ступени
+        const diatonicChords = {
+            'I':    ['major', 'maj7', '6',    'sus2', 'sus4'],
+            'ii':   ['minor', 'm7',   'm6',   'sus2', 'sus4'],
+            'iii':  ['minor', 'm7',   'sus4'],
+            'IV':   ['major', 'maj7', '6',    'sus2'],
+            'V':    ['major', '7',    '6',    'sus2', 'sus4'],
+            'vi':   ['minor', 'm7',   'sus2', 'sus4'],
+            'vii°': ['dim', 'm7b5']
+        };
+        
+        // Римские цифры для ступеней
+        const degreeSymbols = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+        
+        // Переменные для подсчета очков
+        let correctAnswers = 0;
+        let totalQuestions = 0;
+        
+        // Текущая ступень вопроса
+        let currentDegree = '';
+        
+        // DOM элементы
+        const degreeElement = document.getElementById('currentDegree');
+        const chordOptionsElement = document.getElementById('chordOptions');
+        const feedbackElement = document.getElementById('feedback');
+        const checkButton = document.getElementById('checkButton');
+        const genButton = document.getElementById('genButton');
+        const correctAnswersElement = document.getElementById('correctAnswers');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const chordReferenceElement = document.getElementById('chordDescription');
+        const toggleReferenceButton = document.getElementById('toggleReferenceButton');
+      
+        // Функция для генерации нового вопроса
+        function generateQuestion() {
+            // Снимаем выделение со всех опций
+            document.querySelectorAll('.chord-option').forEach(option => {
+                option.classList.remove('selected');
+                option.classList.remove('correct');
+                option.classList.remove('incorrect');
+            });
+            
+            // Скрываем сообщение обратной связи
+            feedbackElement.className = 'feedback';
+            feedbackElement.textContent = '';
+            
+            // Случайно выбираем ступень
+            const randomIndex = Math.floor(Math.random() * degreeSymbols.length);
+            currentDegree = degreeSymbols[randomIndex];
+            
+            // Отображаем новый вопрос
+            degreeElement.textContent = currentDegree;
+        }
+        
+        // Функция для проверки ответа
+        function checkAnswer() {
+            const selectedOptions = [];
+            document.querySelectorAll('.chord-option.selected').forEach(option => {
+                selectedOptions.push(option.dataset.type);
+            });
+            
+            const correctOptions = diatonicChords[currentDegree];
+            let isCorrect = true;
+            
+            // Проверяем, все ли выбранные опции правильные
+            for (const selected of selectedOptions) {
+                if (!correctOptions.includes(selected)) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+            
+            // Проверяем, все ли правильные опции выбраны
+            if (selectedOptions.length !== correctOptions.length) {
+                isCorrect = false;
+            }
+            
+            // Подсвечиваем правильные и неправильные опции
+            document.querySelectorAll('.chord-option').forEach(option => {
+                const type = option.dataset.type;
+                if (correctOptions.includes(type)) {
+                    option.classList.add('correct');
+                } else if (option.classList.contains('selected')) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Обновляем счет и отображаем обратную связь
+            totalQuestions++;
+            if (isCorrect) {
+                correctAnswers++;
+                feedbackElement.textContent = 'Правильно! Вы выбрали все подходящие типы аккордов.';
+                feedbackElement.className = 'feedback success';
+                
+                // Через 2 секунды генерируем новый вопрос
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1000);
+            } else {
+                feedbackElement.textContent = `Неправильно. Для ступени ${currentDegree} подходят следующие типы аккордов: ${correctOptions.join(', ')}`;
+                feedbackElement.className = 'feedback error';
+            }
+            
+            // Обновляем отображение очков
+            correctAnswersElement.textContent = correctAnswers;
+            totalQuestionsElement.textContent = totalQuestions;
+        }
+
+        // Функция для переключения отображения справки
+        function toggleReference() {
+            if (chordReferenceElement.classList.contains('visible')) {
+                chordReferenceElement.classList.remove('visible');
+                toggleReferenceButton.textContent = 'Показать справку';
+            } else {
+                chordReferenceElement.classList.add('visible');
+                toggleReferenceButton.textContent = 'Скрыть справку';
+            }
+        }
+      
+        // Обработчик клика по опции аккорда
+        chordOptionsElement.addEventListener('click', (event) => {
+            if (event.target.classList.contains('chord-option')) {
+                event.target.classList.toggle('selected');
+            }
+        });
+        
+        // Обработчик клика по кнопке проверки
+        checkButton.addEventListener('click', checkAnswer);
+
+        genButton.addEventListener('click', generateQuestion);
+
+        toggleReferenceButton.addEventListener('click', toggleReference);
+      
+        // Генерируем первый вопрос при загрузке страницы
+        generateQuestion();
+
+      
+          document.addEventListener('DOMContentLoaded', function() {
+      // Создаем элемент canvas
+      var canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      
+      // Получаем контекст для рисования
+      var ctx = canvas.getContext('2d');
+      
+      // Заполняем фон
+      ctx.fillStyle = '#4285f4';
+      ctx.fillRect(0, 0, 32, 32);
+      
+      // Добавляем текст или форму
+      ctx.fillStyle = 'white';
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('T', 16, 16);
+      
+      // Преобразуем canvas в data URL
+      var dataUrl = canvas.toDataURL('image/png');
+      
+      // Создаем и добавляем элемент link для фавиконки
+      var link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.href = dataUrl;
+      
+      // Добавляем фавиконку в head
+      document.head.appendChild(link);
+    });
+    </script>
+</body>
+</html>
